@@ -3,6 +3,7 @@ using iText.Kernel.Utils;
 using PDFtoPrinter;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,23 +18,33 @@ namespace CieIntercalaImpresion
         static string impresora;
         static string rutaFicheroDestino;
         static string nombreFicheroDestino;
+        static string modoPDF;
+        static string usuarioSage;
+        static string contUsuario;
 
         static string rutaFicDest;
+        static string rutaFicDestPDF;
 
         static void Main(string[] args)
         {
             /* ASIGNAMOS PARÁMETROS A VARIABLES */
             //args[0] : Ruta fichero
 
-            
 
+            /*
             rutaFicheroOrigen = args[0];
             //args[1] : Nombre fichero
             nombreFicheroOrigen = args[1];
             //args[2] : Impresora
             impresora = args[2];
+            //args[3] : ModoPdf
+            modoPDF = args[3];
+            //args[4] : UsuarioSage
+            usuarioSage = args[4];
+            //args[5] : contadorUsuario
+            contUsuario = args[5];
             
-
+            */
 
 
 
@@ -42,14 +53,18 @@ namespace CieIntercalaImpresion
             //nombreFicheroOrigen = argumentos[1];
             //impresora = argumentos[2];
 
-            /*
-             rutaFicheroOrigen = @"C:\GRUPOCIE\PRUEBAANDREU2.pdf";
-             nombreFicheroOrigen = "PRUEBAANDREU2.pdf";
-             impresora = "RICOH Aficio MP C3001 PCL 6 PRUEBAS";
-            
-            //impresora = "Microsoft Print to PDF";
 
-            */
+            rutaFicheroOrigen = @"C:\GRUPOCIE\PRUEBAANDREU2.pdf";
+             nombreFicheroOrigen = "PRUEBAANDREU2.pdf";
+             //impresora = "RICOH Aficio MP C3001 PCL 6 PRUEBAS";
+            
+             impresora = "OneNote for Windows 10";
+
+            modoPDF = "S";
+            usuarioSage = "1";
+            contUsuario = "3";
+
+
 
 
             try
@@ -169,38 +184,73 @@ namespace CieIntercalaImpresion
 
         private static void imprimirFichero()
         {
-            /*
-            ProcessStartInfo startInfo = new ProcessStartInfo("PDFtoPrinter_m.exe");
+            if (modoPDF != "S")
+            {
 
-            startInfo.Arguments = "\"" + rutaFicheroDestino + "\" \"" + impresora + "\" /s";
-            System.Diagnostics.Process.Start(startInfo);
-            */
+                /*
+                var allowedCocurrentPrintings = 1;
+                var printer = new PDFtoPrinterPrinter(allowedCocurrentPrintings);
+                printer.Print(new PrintingOptions("/s " + impresora, rutaFicheroDestino));
+                */
 
-            var allowedCocurrentPrintings = 1;
-            var printer = new PDFtoPrinterPrinter(allowedCocurrentPrintings);
-            //printer.Print(new PrintingOptions("/s " + impresora, rutaFicheroDestino));
-            printer.Print(new PrintingOptions("/s " + impresora, rutaFicheroDestino));
+                // Create the printer settings for our printer
+                var printerSettings = new PrinterSettings
+                {
+                    PrinterName = impresora,
+                    Copies = 1,
+                };
+                /*
+                // Create our page settings for the paper size selected
+                var pageSettings = new PageSettings(printerSettings)
+                {
+                    Margins = new Margins(0, 0, 0, 0),
+                };
+                foreach (PaperSize paperSize in printerSettings.PaperSizes)
+                {
+                    //if (paperSize.PaperName == "")
+                    //{
+                        pageSettings.PaperSize = paperSize;
+                        break;
+                    //}
+                }
+                */
+                using (var document = PdfiumViewer.PdfDocument.Load(rutaFicheroDestino))
+                {
+                    using (var printDocument = document.CreatePrintDocument())
+                    {
+                        printDocument.PrinterSettings = printerSettings;
+                        //printDocument.DefaultPageSettings = pageSettings;
+                        printDocument.PrintController = new StandardPrintController();
+                        printDocument.Print();
+                    }
+                }
 
+            }
+            else 
+            {
+                // SI NO EXISTE EL DIRECTORIO DEL USUARIO Y EL CONTADOR, LO CREAMOS
+                rutaFicDestPDF = rutaFicDest + @"\PDFs_User-" + usuarioSage + "_" + contUsuario + "_";
+                if (!Directory.Exists(rutaFicDestPDF))
+                {
+                    Directory.CreateDirectory(rutaFicDestPDF);
+                }
 
+                //ELIMINAMOS CARPETAS ANTIGUAS SI EXISTIERAN
+                string[] dirs = Directory.GetDirectories(rutaFicDest);
 
+                foreach (string dir in dirs)
+                {
+                    if ((dir.Contains(@"\PDFs_User-" + usuarioSage + "_")) && !(dir.Contains(@"\PDFs_User-" + usuarioSage + "_" + contUsuario + "_")))
+                    {
+                        Directory.Delete(dir, true);
+                    }
+                }
+                // copiamos el fichero a la carpeta nueva
+                File.Copy(rutaFicheroDestino, rutaFicDestPDF+@"\"+ nombreFicheroDestino);
+                
 
-            //IronPdf.ChromePdfRenderer renderered = new IronPdf.ChromePdfRenderer();
-            //PdfDocument pdf = renderered.RenderUrlAsPdf("jhgfhg");
+            }
 
-
-            //var printer = new PDFtoPrinterPrinter();
-            //printer.Print(new PrintingOptions(impresora, rutaFicheroDestino));
-
-            //printer = new CleanupFilesPrinter(new PDFtoPrinterPrinter());
-            //printer.Print(new PrintingOptions(impresora, rutaFicheroDestino));
-
-            // Creamos instancia de la impresora
-            //IPrinter printer = new Printer();
-
-            // Imprimimos fichero
-            //printer.PrintRawFile(impresora, rutaFicheroDestino, nombreFicheroDestino);
-
-            //RawPrinterHelper.SendFileToPrinter(impresora, rutaFicheroDestino);
 
         }
 
