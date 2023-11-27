@@ -301,6 +301,7 @@ namespace CieIntercalaImpresion
                 if (!Directory.Exists(rufaficPDFConfig))
                 {
                     Directory.CreateDirectory(rufaficPDFConfig);
+
                 }
                 // SI NO EXISTE EL DIRECTORIO DEL USUARIO Y EL CONTADOR, LO CREAMOS
                 rutaFicDestPDF = rufaficPDFConfig + @"\PDFs_User-" + usuarioSage + "_" + contUsuario + "_";
