@@ -27,6 +27,7 @@ namespace CieIntercalaImpresion
         static string rutaFicDest;
         static string rutaFichDFDestPDF;
 
+
         static void Main(string[] args)
         {
             /* ASIGNAMOS PARÁMETROS A VARIABLES */
